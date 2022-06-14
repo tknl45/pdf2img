@@ -1,14 +1,10 @@
-﻿
-
-using System.Drawing;
-using System.Drawing.Imaging;
-using PdfLibCore;
+﻿using PdfLibCore;
 using PdfLibCore.Enums;
+using SixLabors.ImageSharp;
 
-Console.WriteLine("Hello, World!");
 var dpiX = 200D;
 var dpiY = 200D;
-var filename = "s1";
+var filename = "sample";
 
 
 var pageNum = 0;
@@ -23,7 +19,12 @@ foreach (var page in pdfDocument.Pages)
     pdfPage.Render(bitmap, PageOrientations.Normal, RenderingFlags.LcdText);
     using var stream = bitmap.AsBmpStream(dpiX, dpiY);
 
-    Image img = System.Drawing.Image.FromStream(stream);
 
-    img.Save($"{filename}-{pageNum}.jpg", ImageFormat.Jpeg);
+
+    // resize the image and save it to the output stream
+    using (var outputStream = new FileStream($"{filename}-{pageNum}.jpg", FileMode.CreateNew))
+    using (var image = Image.Load(stream))
+    {
+        image.SaveAsJpeg(outputStream);
+    }
 }
